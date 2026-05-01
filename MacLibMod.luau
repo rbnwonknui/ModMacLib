@@ -714,15 +714,6 @@ function MacLib:Window(Settings)
 	topbar.BorderSizePixel = 0
 	topbar.Size = UDim2.new(1, 0, 0, 63)
 
-	local topGreenLine = Instance.new("Frame")
-	topGreenLine.Name = "TopGreenLine"
-	topGreenLine.BackgroundColor3 = Color3.fromRGB(100, 220, 100)
-	topGreenLine.BorderSizePixel = 0
-	topGreenLine.Size = UDim2.new(1, 0, 0, 2)
-	topGreenLine.Position = UDim2.fromScale(0, 0)
-	topGreenLine.ZIndex = 10
-	topGreenLine.Parent = base
-
 	local divider4 = Instance.new("Frame")
 	divider4.Name = "Divider"
 	divider4.AnchorPoint = Vector2.new(0, 1)
