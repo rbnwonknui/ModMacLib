@@ -4635,6 +4635,179 @@ function MacLib:Window(Settings)
 				SelectCurrentTab()
 			end
 
+			function TabFunctions:AddSocialPanel(Configs)
+				local MPS = game:GetService("MarketplaceService")
+				local section = TabFunctions:Section({ Side = Configs.Side or "Left" })
+
+				-- Game Info card
+				local gameInfo = Instance.new("Frame")
+				gameInfo.Name = "GameInfo"
+				gameInfo.AutomaticSize = Enum.AutomaticSize.Y
+				gameInfo.BackgroundColor3 = Color3.fromRGB(255,255,255)
+				gameInfo.BackgroundTransparency = 0.97
+				gameInfo.BorderSizePixel = 0
+				gameInfo.Size = UDim2.new(1,0,0,0)
+				gameInfo.Parent = section
+
+				local giCorner = Instance.new("UICorner")
+				giCorner.CornerRadius = UDim.new(0,8)
+				giCorner.Parent = gameInfo
+
+				local giStroke = Instance.new("UIStroke")
+				giStroke.Color = Color3.fromRGB(255,255,255)
+				giStroke.Transparency = 0.95
+				giStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				giStroke.Parent = gameInfo
+
+				local giPad = Instance.new("UIPadding")
+				giPad.PaddingLeft = UDim.new(0,14)
+				giPad.PaddingRight = UDim.new(0,14)
+				giPad.PaddingTop = UDim.new(0,12)
+				giPad.PaddingBottom = UDim.new(0,12)
+				giPad.Parent = gameInfo
+
+				local giList = Instance.new("UIListLayout")
+				giList.Padding = UDim.new(0,6)
+				giList.SortOrder = Enum.SortOrder.LayoutOrder
+				giList.Parent = gameInfo
+
+				local function makeRow(labelText, valueText, valueColor)
+					local row = Instance.new("Frame")
+					row.AutomaticSize = Enum.AutomaticSize.Y
+					row.BackgroundTransparency = 1
+					row.Size = UDim2.new(1,0,0,0)
+					row.Parent = gameInfo
+
+					local rowList = Instance.new("UIListLayout")
+					rowList.FillDirection = Enum.FillDirection.Horizontal
+					rowList.Padding = UDim.new(0,6)
+					rowList.VerticalAlignment = Enum.VerticalAlignment.Center
+					rowList.Parent = row
+
+					local lbl = Instance.new("TextLabel")
+					lbl.FontFace = Font.new(assets.interFont, Enum.FontWeight.SemiBold)
+					lbl.Text = labelText
+					lbl.TextColor3 = Color3.fromRGB(255,255,255)
+					lbl.TextTransparency = 0.5
+					lbl.TextSize = 12
+					lbl.TextXAlignment = Enum.TextXAlignment.Left
+					lbl.AutomaticSize = Enum.AutomaticSize.XY
+					lbl.BackgroundTransparency = 1
+					lbl.Size = UDim2.fromOffset(0,0)
+					lbl.Parent = row
+
+					local val = Instance.new("TextLabel")
+					val.FontFace = Font.new(assets.interFont, Enum.FontWeight.Medium)
+					val.Text = valueText
+					val.TextColor3 = valueColor or Color3.fromRGB(255,255,255)
+					val.TextTransparency = 0.1
+					val.TextSize = 12
+					val.TextXAlignment = Enum.TextXAlignment.Left
+					val.AutomaticSize = Enum.AutomaticSize.XY
+					val.BackgroundTransparency = 1
+					val.LayoutOrder = 1
+					val.Size = UDim2.fromOffset(0,0)
+					val.Parent = row
+
+					return val
+				end
+
+				local gameNameVal = makeRow("Game:", Configs.GameName or "Loading...")
+				local creatorVal  = makeRow("Creator:", Configs.Creator or "Unknown")
+				local versionVal  = makeRow("Version:", Configs.Version or "v1.0")
+
+				-- Auto fetch game name
+				if Configs.FetchGame ~= false then
+					task.spawn(function()
+						local ok, info = pcall(function()
+							return MPS:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
+						end)
+						if ok and info then
+							gameNameVal.Text = info.Name or gameNameVal.Text
+						end
+					end)
+				end
+
+				-- Discord/Social links
+				if Configs.Links then
+					local divLine = Instance.new("Frame")
+					divLine.BackgroundColor3 = Color3.fromRGB(255,255,255)
+					divLine.BackgroundTransparency = 0.9
+					divLine.BorderSizePixel = 0
+					divLine.Size = UDim2.new(1,0,0,1)
+					divLine.Parent = gameInfo
+
+					for _, link in ipairs(Configs.Links) do
+						local btnRow = Instance.new("Frame")
+						btnRow.AutomaticSize = Enum.AutomaticSize.Y
+						btnRow.BackgroundTransparency = 1
+						btnRow.Size = UDim2.new(1,0,0,28)
+						btnRow.Parent = gameInfo
+
+						local btnList = Instance.new("UIListLayout")
+						btnList.FillDirection = Enum.FillDirection.Horizontal
+						btnList.VerticalAlignment = Enum.VerticalAlignment.Center
+						btnList.Padding = UDim.new(0,8)
+						btnList.Parent = btnRow
+
+						local btnLabel = Instance.new("TextLabel")
+						btnLabel.FontFace = Font.new(assets.interFont, Enum.FontWeight.Medium)
+						btnLabel.Text = link.Name or "Link"
+						btnLabel.TextColor3 = Color3.fromRGB(255,255,255)
+						btnLabel.TextTransparency = 0.4
+						btnLabel.TextSize = 12
+						btnLabel.TextXAlignment = Enum.TextXAlignment.Left
+						btnLabel.AutomaticSize = Enum.AutomaticSize.XY
+						btnLabel.BackgroundTransparency = 1
+						btnLabel.Size = UDim2.fromOffset(0,0)
+						btnLabel.Parent = btnRow
+
+						local copyBtn = Instance.new("TextButton")
+						copyBtn.FontFace = Font.new(assets.interFont, Enum.FontWeight.SemiBold)
+						copyBtn.Text = link.Label or link.Url or ""
+						copyBtn.TextColor3 = Color3.fromRGB(100, 200, 255)
+						copyBtn.TextSize = 12
+						copyBtn.TextXAlignment = Enum.TextXAlignment.Left
+						copyBtn.AutomaticSize = Enum.AutomaticSize.XY
+						copyBtn.BackgroundTransparency = 1
+						copyBtn.BorderSizePixel = 0
+						copyBtn.LayoutOrder = 1
+						copyBtn.Size = UDim2.fromOffset(0,0)
+						copyBtn.AutoButtonColor = false
+						copyBtn.Parent = btnRow
+
+						local feedback = Instance.new("TextLabel")
+						feedback.FontFace = Font.new(assets.interFont)
+						feedback.Text = "✓ Copied!"
+						feedback.TextColor3 = Color3.fromRGB(100,255,100)
+						feedback.TextSize = 11
+						feedback.AutomaticSize = Enum.AutomaticSize.XY
+						feedback.BackgroundTransparency = 1
+						feedback.Size = UDim2.fromOffset(0,0)
+						feedback.LayoutOrder = 2
+						feedback.Visible = false
+						feedback.Parent = btnRow
+
+						copyBtn.MouseButton1Click:Connect(function()
+							if link.Url then setclipboard(link.Url) end
+							if link.Callback then link.Callback() end
+							feedback.Visible = true
+							task.delay(2, function() feedback.Visible = false end)
+						end)
+
+						TweenService:Create(copyBtn, TweenInfo.new(0.15, Enum.EasingStyle.Sine), {}):Play()
+						copyBtn.MouseEnter:Connect(function()
+							TweenService:Create(copyBtn, TweenInfo.new(0.15, Enum.EasingStyle.Sine), { TextColor3 = Color3.fromRGB(150, 220, 255) }):Play()
+						end)
+						copyBtn.MouseLeave:Connect(function()
+							TweenService:Create(copyBtn, TweenInfo.new(0.15, Enum.EasingStyle.Sine), { TextColor3 = Color3.fromRGB(100, 200, 255) }):Play()
+						end)
+					end
+				end
+
+				gameInfo.Parent = section
+			end
+
 			function TabFunctions:InsertConfigSection(Side)
 				local configSection = TabFunctions:Section({ Side = "Left" })
 
