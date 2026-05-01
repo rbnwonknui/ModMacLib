@@ -4639,6 +4639,37 @@ function MacLib:Window(Settings)
 				local MPS = game:GetService("MarketplaceService")
 				local section = TabFunctions:Section({ Side = Configs.Side or "Left" })
 
+				local gameName = Configs.GameName or "Loading..."
+				local header = section:Header({ Name = gameName })
+
+				task.spawn(function()
+					if Configs.FetchGame ~= false then
+						local ok, info = pcall(function() return MPS:GetProductInfo(game.PlaceId, Enum.InfoType.Asset) end)
+						if ok and info then header:UpdateName(info.Name or gameName) end
+					end
+				end)
+
+				section:Label({ Text = "Creator: " .. (Configs.Creator or "Unknown") })
+				section:Label({ Text = "Version: " .. (Configs.Version or "v1.0") })
+				section:Divider()
+
+				if Configs.Links then
+					for _, link in ipairs(Configs.Links) do
+						section:Button({
+							Name = (link.Name or "") .. " " .. (link.Label or link.Url or ""),
+							Callback = function()
+								if link.Url then setclipboard(link.Url) end
+								if link.Callback then link.Callback() end
+							end
+						})
+					end
+				end
+			end
+
+			function TabFunctions:AddSocialPanel_unused(Configs)
+				local MPS = game:GetService("MarketplaceService")
+				local section = TabFunctions:Section({ Side = Configs.Side or "Left" })
+
 				-- Game Info card
 				local gameInfo = Instance.new("Frame")
 				gameInfo.Name = "GameInfo"
@@ -4647,7 +4678,6 @@ function MacLib:Window(Settings)
 				gameInfo.BackgroundTransparency = 0.97
 				gameInfo.BorderSizePixel = 0
 				gameInfo.Size = UDim2.new(1,0,0,0)
-				gameInfo.Parent = section
 
 				local giCorner = Instance.new("UICorner")
 				giCorner.CornerRadius = UDim.new(0,8)
