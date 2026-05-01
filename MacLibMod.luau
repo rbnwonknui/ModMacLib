@@ -126,7 +126,8 @@ function MacLib:Window(Settings)
 	baseUIStroke.Name = "BaseUIStroke"
 	baseUIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	baseUIStroke.Color = Color3.fromRGB(255, 255, 255)
-	baseUIStroke.Transparency = 0.9
+	baseUIStroke.Transparency = 1
+	baseUIStroke.Thickness = 1
 	baseUIStroke.Parent = base
 
 	local sidebar = Instance.new("Frame")
@@ -713,6 +714,15 @@ function MacLib:Window(Settings)
 	topbar.BorderSizePixel = 0
 	topbar.Size = UDim2.new(1, 0, 0, 63)
 
+	local topGreenLine = Instance.new("Frame")
+	topGreenLine.Name = "TopGreenLine"
+	topGreenLine.BackgroundColor3 = Color3.fromRGB(100, 220, 100)
+	topGreenLine.BorderSizePixel = 0
+	topGreenLine.Size = UDim2.new(1, 0, 0, 2)
+	topGreenLine.Position = UDim2.fromScale(0, 0)
+	topGreenLine.ZIndex = 10
+	topGreenLine.Parent = base
+
 	local divider4 = Instance.new("Frame")
 	divider4.Name = "Divider"
 	divider4.AnchorPoint = Vector2.new(0, 1)
@@ -1249,7 +1259,7 @@ function MacLib:Window(Settings)
 			Enum.FontWeight.Medium,
 			Enum.FontStyle.Normal
 		)
-		checkmark.Text = "?"
+		checkmark.Text = "✓"
 		checkmark.TextColor3 = Color3.fromRGB(255, 255, 255)
 		checkmark.TextSize = 13
 		checkmark.TextTransparency = 1
@@ -1515,27 +1525,46 @@ function MacLib:Window(Settings)
 			local elementsScrollingUIListLayout = Instance.new("UIListLayout")
 			elementsScrollingUIListLayout.Name = "ElementsScrollingUIListLayout"
 			elementsScrollingUIListLayout.Padding = UDim.new(0, 15)
+			elementsScrollingUIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			elementsScrollingUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			elementsScrollingUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 			elementsScrollingUIListLayout.Parent = elementsScrolling
 
-			-- Single column layout - removed left/right split
-			local contentColumn = Instance.new("Frame")
-			contentColumn.Name = "ContentColumn"
-			contentColumn.AutomaticSize = Enum.AutomaticSize.Y
-			contentColumn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-			contentColumn.BackgroundTransparency = 1
-			contentColumn.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			contentColumn.BorderSizePixel = 0
-			contentColumn.Size = UDim2.new(1, -20, 0, 0)
+			local left = Instance.new("Frame")
+			left.Name = "Left"
+			left.AutomaticSize = Enum.AutomaticSize.Y
+			left.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+			left.BackgroundTransparency = 1
+			left.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			left.BorderSizePixel = 0
+			left.Position = UDim2.fromScale(0.512, 0)
+			left.Size = UDim2.new(0.5, -10, 0, 0)
 
-			local contentColumnUIListLayout = Instance.new("UIListLayout")
-			contentColumnUIListLayout.Name = "ContentColumnUIListLayout"
-			contentColumnUIListLayout.Padding = UDim.new(0, 15)
-			contentColumnUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			contentColumnUIListLayout.Parent = contentColumn
+			local leftUIListLayout = Instance.new("UIListLayout")
+			leftUIListLayout.Name = "LeftUIListLayout"
+			leftUIListLayout.Padding = UDim.new(0, 15)
+			leftUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			leftUIListLayout.Parent = left
 
-			contentColumn.Parent = elementsScrolling
+			left.Parent = elementsScrolling
+
+			local right = Instance.new("Frame")
+			right.Name = "Right"
+			right.AutomaticSize = Enum.AutomaticSize.Y
+			right.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+			right.BackgroundTransparency = 1
+			right.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			right.BorderSizePixel = 0
+			right.LayoutOrder = 1
+			right.Position = UDim2.fromScale(0.512, 0)
+			right.Size = UDim2.new(0.5, -10, 0, 0)
+
+			local rightUIListLayout = Instance.new("UIListLayout")
+			rightUIListLayout.Name = "RightUIListLayout"
+			rightUIListLayout.Padding = UDim.new(0, 15)
+			rightUIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			rightUIListLayout.Parent = right
+
+			right.Parent = elementsScrolling
 
 			elementsScrolling.Parent = elements1
 
@@ -1551,7 +1580,7 @@ function MacLib:Window(Settings)
 				section.Position = UDim2.fromScale(0, 6.78e-08)
 				section.Size = UDim2.fromScale(1, 0)
 				section.ClipsDescendants = true
-				section.Parent = contentColumn  -- Always parent to contentColumn, no side selection
+				section.Parent = Settings.Side == "Left" and left or right
 
 				local sectionUICorner = Instance.new("UICorner")
 				sectionUICorner.Name = "SectionUICorner"
@@ -1623,6 +1652,7 @@ function MacLib:Window(Settings)
 					local TweenSettings = {
 						DefaultTransparency = 0.5,
 						HoverTransparency = 0.3,
+
 						EasingStyle = Enum.EasingStyle.Sine
 					}
 
@@ -1858,6 +1888,7 @@ function MacLib:Window(Settings)
 					sliderValue.TextColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.TextSize = 12
 					sliderValue.TextTransparency = 0.1
+					--sliderValue.TextTruncate = Enum.TextTruncate.AtEnd
 					sliderValue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 					sliderValue.BackgroundTransparency = 0.95
 					sliderValue.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -1931,10 +1962,10 @@ function MacLib:Window(Settings)
 					local dragging = false
 
 					local DisplayMethods = {
-						Hundredths = function(sliderValue)
+						Hundredths = function(sliderValue) -- Deprecated use Settings.Precision
 							return string.format("%.2f", sliderValue)
 						end,
-						Tenths = function(sliderValue)
+						Tenths = function(sliderValue) -- Deprecated use Settings.Precision
 							return string.format("%.1f", sliderValue)
 						end,
 						Round = function(sliderValue, precision)
@@ -1946,7 +1977,7 @@ function MacLib:Window(Settings)
 						end,
 						Degrees = function(sliderValue, precision)
 							local formattedValue = precision and string.format("%." .. precision .. "f", sliderValue) or tostring(sliderValue)
-							return formattedValue .. "�"
+							return formattedValue .. "°"
 						end,
 						Percent = function(sliderValue, precision)
 							local percentage = (sliderValue - SliderFunctions.Settings.Minimum) / (SliderFunctions.Settings.Maximum - SliderFunctions.Settings.Minimum) * 100
@@ -2463,7 +2494,7 @@ function MacLib:Window(Settings)
 					local dropdownName = Instance.new("TextLabel")
 					dropdownName.Name = "DropdownName"
 					dropdownName.FontFace = Font.new(assets.interFont)
-					dropdownName.Text = Settings.Default and (DropdownFunctions.Settings.Name .. " � " .. table.concat(Selected, ", ")) or (DropdownFunctions.Settings.Name .. "...")
+					dropdownName.Text = Settings.Default and (DropdownFunctions.Settings.Name .. " • " .. table.concat(Selected, ", ")) or (DropdownFunctions.Settings.Name .. "...")
 					dropdownName.RichText = true
 					dropdownName.TextColor3 = Color3.fromRGB(255, 255, 255)
 					dropdownName.TextSize = 13
@@ -2689,7 +2720,7 @@ function MacLib:Window(Settings)
 						end
 
 						if #Selected > 0 then
-							dropdownName.Text = DropdownFunctions.Settings.Name .. " � " .. table.concat(Selected, ", ")
+							dropdownName.Text = DropdownFunctions.Settings.Name .. " • " .. table.concat(Selected, ", ")
 						else
 							dropdownName.Text = DropdownFunctions.Settings.Name .. "..."
 						end
@@ -2781,7 +2812,7 @@ function MacLib:Window(Settings)
 						local checkmark = Instance.new("TextLabel")
 						checkmark.Name = "Checkmark"
 						checkmark.FontFace = Font.new(assets.interFont)
-						checkmark.Text = "?"
+						checkmark.Text = "✓"
 						checkmark.TextColor3 = Color3.fromRGB(255, 255, 255)
 						checkmark.TextSize = 13
 						checkmark.TextTransparency = 1
@@ -4876,7 +4907,7 @@ function MacLib:Window(Settings)
 		local interactable = Instance.new("TextButton")
 		interactable.Name = "Interactable"
 		interactable.FontFace = Font.new(assets.interFont)
-		interactable.Text = "?"
+		interactable.Text = "✓"
 		interactable.TextColor3 = Color3.fromRGB(255, 255, 255)
 		interactable.TextSize = 17
 		interactable.TextTransparency = 0.2
@@ -4910,8 +4941,8 @@ function MacLib:Window(Settings)
 
 		local styles = {
 			None = function() interactable:Destroy() end,
-			Confirm = function() interactable.Text = "?" end,
-			Cancel = function() interactable.Text = "?" end
+			Confirm = function() interactable.Text = "✓" end,
+			Cancel = function() interactable.Text = "✗" end
 		}
 
 		local style = styles[Settings.Style] or function() interactable:Destroy() end
@@ -5654,7 +5685,7 @@ function MacLib:Demo()
 	}
 
 	local sections = {
-		MainSection1 = tabs.Main:Section({}),  -- No Side parameter needed
+		MainSection1 = tabs.Main:Section({ Side = "Left" }),
 	}
 
 	sections.MainSection1:Header({
@@ -5846,8 +5877,7 @@ function MacLib:Demo()
 	})
 
 	MacLib:SetFolder("Maclib")
-	-- Updated: Removed Side parameter from InsertConfigSection
-	tabs.Settings:InsertConfigSection()
+	tabs.Settings:InsertConfigSection("Left")
 
 	Window.onUnloaded(function()
 		print("Unloaded!")
